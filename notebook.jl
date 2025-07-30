@@ -15,29 +15,11 @@ using Unitful
 using UnitfulAstro
 end
 
-# ╔═╡ 1261294e-5532-4c59-bbbe-0c75601b6a71
-x1 = 6u"V_mag"; x1.val
-
-# ╔═╡ d69bd683-8f1e-4e32-82ae-908030f5e6e0
-x2 = 5u"V_mag"; x2.val
-
-# ╔═╡ 995e0b12-307c-4929-9afd-13404306734b
-x2 - x1
-
-# ╔═╡ f660e35e-5fc4-474a-a9f6-74889b318f3f
-(x2.val - x1.val) |> u"V_mag"
-
-# ╔═╡ a1910e75-6212-4efb-b835-02460a621de4
-(3DQ.ua"degC") / (2DQ.ua"degF")
-
-# ╔═╡ b87d0ae6-8789-4ae0-b495-abdd000b8797
-DQ.ua"degF"
+# ╔═╡ a679bc98-3252-4e79-96a5-dc202b514a64
+36.4 == 3640 / 10^(5/2.5)
 
 # ╔═╡ 526d7c68-b081-45cb-bae7-cba8fd88decc
-DQ.@register_unit Jy 1e-26 * DQ.u"W/m^2/Hz"
-
-# ╔═╡ 52eb2ec3-d555-4b3c-923d-865c3e8054cf
-DQ.u"Jy" |> typeof
+# DQ.@register_unit Jy 1e-26 * DQ.u"W/m^2/Hz"
 
 # ╔═╡ f76faed0-489e-4a27-8dbe-328945df613a
 struct LogUnit{R}
@@ -45,6 +27,26 @@ struct LogUnit{R}
 	basedim::DQ.Dimensions{R}
 	name::Symbol
 end
+
+# ╔═╡ 68291dba-61bd-4783-9819-677404349fc2
+# This immediately converts to regular Dimensions
+function Base.:*(value::Number, unit::LogUnit)
+    new_value = unit.zero_point / exp10(value / 2.5)
+    # Always use Float64 for temperature conversions to avoid precision issues
+	return new_value #Quantity(new_value, unit.basedim)
+end
+
+# ╔═╡ 1261294e-5532-4c59-bbbe-0c75601b6a71
+x1 = 5u"V_mag"; x1, x1.val
+
+# ╔═╡ d69bd683-8f1e-4e32-82ae-908030f5e6e0
+x2 = 0u"V_mag"; x2, x2.val
+
+# ╔═╡ 4fbbf8a9-0ade-4f44-98d6-ced9fcbdaa8f
+5 == 2.5 * log10(3640 / 36.4)
+
+# ╔═╡ eb726108-5ce2-4977-872c-350e312293b8
+(3u"V_mag" - 7u"V_mag") |> u"Jy"
 
 # ╔═╡ 8be14e3e-326e-4800-91e2-b12a4507559c
 module LogUnits
@@ -54,13 +56,16 @@ module LogUnits
 	const V_mag = LogUnit(
 		3640.0 * DQ.u"Jy",
 		DQ.Dimensions{DQ.DEFAULT_DIM_BASE_TYPE}(mass=1, time=-2),
-		:V_mag
+		Symbol("Johnson V mag"),
 	)
 	
 	function map_to_scope(sym::Symbol)
-		return 
+		return V_mag
 	end
 end
+
+# ╔═╡ fc0f64e4-e8d4-4be4-8a79-f95acf92ac01
+Base.show(io::IO, unit::LogUnit) = print(io, unit.name)
 
 # ╔═╡ 0eb3118b-03bf-469c-99ce-c7d04b599aab
 macro ul_str(s)
@@ -68,20 +73,20 @@ macro ul_str(s)
 	return esc(ex)
 end
 
-# ╔═╡ df7d52a8-36f0-4ff9-8b1b-30d628aaf865
-ul"f"
+# ╔═╡ 2a3575db-0343-4afc-8878-5fed949871ab
+(3 * ul"V_mag"  - 7 * ul"V_mag") |> DQ.us"Jy"
 
 # ╔═╡ Cell order:
 # ╠═4ea34a20-6cd6-11f0-328e-a197b1716a60
 # ╠═1261294e-5532-4c59-bbbe-0c75601b6a71
 # ╠═d69bd683-8f1e-4e32-82ae-908030f5e6e0
-# ╠═995e0b12-307c-4929-9afd-13404306734b
-# ╠═f660e35e-5fc4-474a-a9f6-74889b318f3f
-# ╠═a1910e75-6212-4efb-b835-02460a621de4
-# ╠═b87d0ae6-8789-4ae0-b495-abdd000b8797
+# ╠═4fbbf8a9-0ade-4f44-98d6-ced9fcbdaa8f
+# ╠═a679bc98-3252-4e79-96a5-dc202b514a64
 # ╠═526d7c68-b081-45cb-bae7-cba8fd88decc
-# ╠═52eb2ec3-d555-4b3c-923d-865c3e8054cf
 # ╠═f76faed0-489e-4a27-8dbe-328945df613a
+# ╠═2a3575db-0343-4afc-8878-5fed949871ab
+# ╠═eb726108-5ce2-4977-872c-350e312293b8
+# ╠═68291dba-61bd-4783-9819-677404349fc2
 # ╠═8be14e3e-326e-4800-91e2-b12a4507559c
+# ╠═fc0f64e4-e8d4-4be4-8a79-f95acf92ac01
 # ╠═0eb3118b-03bf-469c-99ce-c7d04b599aab
-# ╠═df7d52a8-36f0-4ff9-8b1b-30d628aaf865
