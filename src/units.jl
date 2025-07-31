@@ -261,6 +261,11 @@ end
 ## Magnetic flux densities
 @_lazy_register_unit Gauss 1e-4 * T
 
+## Spectral flux densities (Used for astronomical magnitudes)
+@_lazy_register_unit Jy 1e-26 * W/m^2/Hz
+
+@add_prefixes Jy (m, M)
+
 # Do not wish to define Gaussian units, as it changes
 # some formulas. Safer to force user to work exclusively in one unit system.
 
