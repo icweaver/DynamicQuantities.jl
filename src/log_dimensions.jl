@@ -9,29 +9,42 @@ struct MagUnit <: LogUnit
 end
 
 Base.show(io::IO, unit::MagUnit) = print(io, unit.value, " ", unit.name)
-Base.:*(value::Number, unit::MagUnit) = MagUnit(value, unit.zero_point, unit.name)
-Base.oneunit(m::MagUnit) = MagUnit(one(m.value), m.zero_point, m.name)
 
 # Conversions
-to_SI(m::MagUnit) = (m.zero_point / exp10(m.value / 2.5))
+"""
+    uexpand(m::MagUnit)
+
+Expand  the logarithmic units in a quantity with symbolic dimensions to their base SI form.
+"""
+uexpand(m::MagUnit) = (m.zero_point / exp10(m.value / 2.5))
 
 function uconvert(mout::MagUnit, x)
     @assert mout.value == 1.0 "You tried converting to $(mout), a `MagUnit` with a non-unit value."
-    return -2.5 * log10(x / mout.zero_point) * mout
+    return -2.5 * log10(uexpand(x) / mout.zero_point) * mout
 end
+uconvert(qout::UnionAbstractQuantity{<:Any, <:Dimensions}, m::MagUnit) = uconvert(qout, uexpand(m))
+uconvert(mout::MagUnit, m::MagUnit) = uconvert(mout, uexpand(m))
 
-uconvert(mout::MagUnit, m::MagUnit) = uconvert(mout, to_SI(m))
-
+# Convenience
 Base.:(|>)(m, mout::MagUnit) = uconvert(mout, m)
+Base.:(|>)(m::MagUnit, mout) = uconvert(mout, m)
+Base.:(|>)(m::MagUnit, mout::MagUnit) = uconvert(mout, m)
+
+# Basic patches
+Base.one(m::MagUnit) = one(m.value)
+Base.oneunit(m::MagUnit) = MagUnit(one(m.value), m.zero_point, m.name)
+
+Base.:*(value::Number, m::MagUnit) = MagUnit(value, m.zero_point, m.name)
 
 function Base.:-(m2::MagUnit, m1::MagUnit)
-    if m2.zero_point == m1.zero_point
-        return (to_SI(m2) - to_SI(m1)) |> oneunit(m2)
+    if m2.name == m1.name
+        return (uexpand(m2) - uexpand(m1)) |> oneunit(m2)
     else
         return m2.value - m1.value
     end
 end
 
+# Define astronomical magnitude units
 module LogUnits
     import ..MagUnit
     import ..UnitsParse: @u_str
@@ -60,4 +73,11 @@ end
 macro ul_str(s)
     ex = LogUnits.map_to_scope(Meta.parse(s))
     return esc(ex)
+end
+
+# Tests
+@testitem "Zero point" begin
+    using DynamicQuantities
+
+    @test isapprox(2u"cm", 2u"cm")
 end
