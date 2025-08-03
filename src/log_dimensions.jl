@@ -1,4 +1,4 @@
-using TestItems: @testitem, @testmodule
+using TestItems: @testitem, @testmodule, @testsnippet
 
 abstract type LogUnit{T} end
 
@@ -36,13 +36,22 @@ Base.one(unit::LogUnit) = one(m.value)
 Base.oneunit(m::MagUnit) = MagUnit(one(m.value), m.zero_point, m.name)
 ustrip(unit::LogUnit) = unit.value
 
-Base.isapprox(m1::MagUnit, m2::MagUnit; atol=(zero ∘ ustrip)(m1.value), kwargs...) = isapprox(ustrip(m1), ustrip(m2); atol, kwargs...)
+Base.isapprox(m1::MagUnit, m2::MagUnit; atol=zero(m1.value), kwargs...) = isapprox(ustrip(m1), ustrip(m2); atol=ustrip(atol), kwargs...)
 Base.isapprox(m1::MagUnit, q2::UnionAbstractQuantity; atol=zero(q2), kwargs...) = isapprox(uexpand(m1), uexpand(q2); atol=uexpand(atol), kwargs...)
 Base.isapprox(q1::UnionAbstractQuantity, m2::MagUnit; kwargs...) = isapprox(m2, q1; kwargs...)
 
 Base.:*(value::Number, m::MagUnit) = MagUnit(value, m.zero_point, m.name)
-
-function Base.:-(m2::MagUnit, m1::MagUnit)
+Base.:/(m::MagUnit, value) = (uexpand(m) / value) |> oneunit(m)
+function Base.:+(m1::MagUnit, m2::MagUnit)
+    if m1.name == m2.name
+        return (uexpand(m1) + uexpand(m2)) |> oneunit(m1)
+    else
+        throw(MethodError(+, (m1, m2)))
+    end
+end
+Base.:+(m1::MagUnit, q2::UnionAbstractQuantity) = uexpand(m1) + q2
+Base.:+(q2::UnionAbstractQuantity, m1::MagUnit) = m1 + q2
+@unstable function Base.:-(m2::MagUnit, m1::MagUnit)
     if m2.name == m1.name
         return (uexpand(m2) - uexpand(m1)) |> oneunit(m2)
     else
@@ -55,23 +64,34 @@ module LogUnits
     import ..MagUnit
     import ..UnitsParse: @u_str
 
+    const AB_mag = MagUnit(
+        1.0,
+        3631u"Jy",
+        Symbol("AB mag"),
+    )
+
     const V_mag = MagUnit(
         1.0,
-        3640.0u"Jy",
+        3640u"Jy",
         Symbol("Johnson V mag"),
     )
 
     const B_mag = MagUnit(
         1.0,
-        4260.0u"Jy",
+        4260u"Jy",
         Symbol("Johnson B mag"),
     )
 
     function map_to_scope(sym::Symbol)
-        if sym == Symbol("V_mag")
+        # TODO: add remaining filters
+        if sym == Symbol("AB_mag")
+            return AB_mag
+        elseif sym == Symbol("B_mag")
+            return B_mag
+        elseif sym == Symbol("V_mag")
             return V_mag
         else
-            return B_mag
+            throw(ArgumentError("Symbol $sym not found in `LogUnits`."))
         end
     end
 end
@@ -82,17 +102,36 @@ macro ul_str(s)
 end
 
 # Tests
-@testmodule DQ begin
+@testsnippet DQ begin
     using DynamicQuantities
 
     const u = DynamicQuantities.Units
     const ul = DynamicQuantities.LogUnits
 end
 
-@testitem "Zero-point" setup=[DQ] begin
-
-    @test isapprox(1DQ.ul.V_mag, 3640DQ.u.Jy; atol=0.001DQ.ul.V_mag)
+@testitem "Conversions" setup=[DQ] begin
+    @test isapprox(3631u.Jy, 0*ul.AB_mag, atol=0.001*ul.AB_mag)
+    @test isapprox(36.31*u.Jy, 5*ul.AB_mag, atol=0.001*ul.AB_mag)
+    @test isapprox(363.1*u.mJy, 10*ul.AB_mag, atol=0.001*ul.AB_mag)
+    @test isapprox(3.631*u.mJy, 15*ul.AB_mag, atol=0.001*ul.AB_mag)
+    @test isapprox(5*ul.AB_mag + 5*ul.AB_mag,  4.247425010840047*ul.AB_mag, atol=0.001*ul.AB_mag)
+    @test isapprox(5*ul.AB_mag / 100, 10*ul.AB_mag, atol=0.001*ul.AB_mag)
+    # TODO: patch src/utils.jl for this? Doing uexpand manually for now
+    @test_broken isapprox(5*ul.AB_mag + 10*u.Jy, 46.31*u.Jy, atol=0.001*ul.AB_mag)
+    @test isapprox(5*ul.AB_mag + 10*u.Jy, 46.31*u.Jy, atol=uexpand(0.001*ul.AB_mag))
 end
 
-@testitem "Algebraic operations" begin
+@testitem "Zero-point" setup=[DQ] begin
+    @test isapprox(1ul.V_mag, 3640u.Jy; atol=0.001ul.V_mag)
+end
+
+@testitem "Algebraic operations" setup=[DQ] begin
+    @test iszero(1ul.B_mag - 1ul.V_mag)
+    @test isapprox(5*ul.B_mag - 1ul.V_mag, 4)
+    @test isapprox(1ul.B_mag - 5*ul.V_mag, -4)
+    @test isapprox(1ul.B_mag - 0.5*ul.V_mag, 0.5)
+    @test_throws MethodError 1ul.B_mag + 2ul.V_mag
+    @test_throws MethodError 1ul.B_mag * 2ul.V_mag
+    @test_throws MethodError 1ul.B_mag / 2ul.V_mag
+    @test_throws MethodError 1ul.B_mag // 2ul.V_mag
 end
