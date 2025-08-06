@@ -70,6 +70,18 @@ module LogUnits
         Symbol("AB mag"),
     )
 
+    const bol_Mag = MagUnit(
+        1.0,
+        3.0128e28u"W",
+        Symbol("bol Mag"),
+    )
+
+    const bol_mag = MagUnit(
+        1.0,
+        2.518_021_002e-8u"W/m^2",
+        Symbol("bol Mag"),
+    )
+
     const V_mag = MagUnit(
         1.0,
         3640u"Jy",
@@ -86,6 +98,10 @@ module LogUnits
         # TODO: add remaining filters
         if sym == Symbol("AB_mag")
             return AB_mag
+        elseif sym == Symbol("bol_Mag")
+            return bol_Mag
+        elseif sym == Symbol("bol_mag")
+            return bol_mag
         elseif sym == Symbol("B_mag")
             return B_mag
         elseif sym == Symbol("V_mag")
@@ -119,6 +135,11 @@ end
     # TODO: patch src/utils.jl for this? Doing uexpand manually for now
     @test_broken isapprox(5*ul.AB_mag + 10*u.Jy, 46.31*u.Jy, atol=0.001*ul.AB_mag)
     @test isapprox(5*ul.AB_mag + 10*u.Jy, 46.31*u.Jy, atol=uexpand(0.001*ul.AB_mag))
+end
+
+@testitem "Bolometric magnitude" setup=[DQ] begin
+    @test isapprox(3.0128e28*u.W, 1ul.bol_Mag; atol=0.001*ul.bol_Mag)
+    @test isapprox(2.518_021_002e-8*u.W*u.m^-2, 1ul.bol_mag, atol=0.001*ul.bol_mag)
 end
 
 @testitem "Zero-point" setup=[DQ] begin
