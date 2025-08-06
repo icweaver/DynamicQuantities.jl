@@ -125,7 +125,7 @@ end
     const ul = DynamicQuantities.LogUnits
 end
 
-@testitem "Conversions" setup=[DQ] begin
+@testitem "log_dimensions: AB_mag" setup=[DQ] begin
     @test isapprox(3631u.Jy, 0*ul.AB_mag, atol=0.001*ul.AB_mag)
     @test isapprox(36.31*u.Jy, 5*ul.AB_mag, atol=0.001*ul.AB_mag)
     @test isapprox(363.1*u.mJy, 10*ul.AB_mag, atol=0.001*ul.AB_mag)
@@ -137,16 +137,16 @@ end
     @test isapprox(5*ul.AB_mag + 10*u.Jy, 46.31*u.Jy, atol=uexpand(0.001*ul.AB_mag))
 end
 
-@testitem "Bolometric magnitude" setup=[DQ] begin
+@testitem "log_dimensions: bol mags" setup=[DQ] begin
     @test isapprox(3.0128e28*u.W, 1ul.bol_Mag; atol=0.001*ul.bol_Mag)
     @test isapprox(2.518_021_002e-8*u.W*u.m^-2, 1ul.bol_mag, atol=0.001*ul.bol_mag)
 end
 
-@testitem "Zero-point" setup=[DQ] begin
+@testitem "log_dimensions: zero-point" setup=[DQ] begin
     @test isapprox(1ul.V_mag, 3640u.Jy; atol=0.001ul.V_mag)
 end
 
-@testitem "Algebraic operations" setup=[DQ] begin
+@testitem "log_dimensions: algebra" setup=[DQ] begin
     @test iszero(1ul.B_mag - 1ul.V_mag)
     @test isapprox(5*ul.B_mag - 1ul.V_mag, 4)
     @test isapprox(1ul.B_mag - 5*ul.V_mag, -4)
