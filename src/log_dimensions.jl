@@ -82,10 +82,10 @@ module LogUnits
         Symbol("bol Mag"),
     )
 
-    const V_mag = MagUnit(
+    const U_mag = MagUnit(
         1.0,
-        3640u"Jy",
-        Symbol("Johnson V mag"),
+        1810u"Jy",
+        Symbol("Johnson U mag"),
     )
 
     const B_mag = MagUnit(
@@ -94,18 +94,97 @@ module LogUnits
         Symbol("Johnson B mag"),
     )
 
+    const V_mag = MagUnit(
+        1.0,
+        3640u"Jy",
+        Symbol("Johnson V mag"),
+    )
+
+    const R_mag = MagUnit(
+        1.0,
+        3080u"Jy",
+        Symbol("Johnson R mag"),
+    )
+
+    const I_mag = MagUnit(
+        1.0,
+        2550u"Jy",
+        Symbol("Johnson I mag"),
+    )
+
+    const J_mag = MagUnit(
+        1.0,
+        1600u"Jy",
+        Symbol("Johnson J mag"),
+    )
+
+    const H_mag = MagUnit(
+        1.0,
+        1080u"Jy",
+        Symbol("Johnson H mag"),
+    )
+
+    const K_mag = MagUnit(
+        1.0,
+        670u"Jy",
+        Symbol("Johnson K mag"),
+    )
+
+    const g_mag = MagUnit(
+        1.0,
+        3730u"Jy",
+        Symbol("Gunn g mag"),
+    )
+
+    const r_mag = MagUnit(
+        1.0,
+        4490u"Jy",
+        Symbol("Gunn r mag"),
+    )
+
+    const i_mag = MagUnit(
+        1.0,
+        4760u"Jy",
+        Symbol("Gunn i mag"),
+    )
+
+    const z_mag = MagUnit(
+        1.0,
+        4810u"Jy",
+        Symbol("Gunn z mag"),
+    )
+
     function map_to_scope(sym::Symbol)
-        # TODO: add remaining filters
         if sym == Symbol("AB_mag")
             return AB_mag
         elseif sym == Symbol("bol_Mag")
             return bol_Mag
         elseif sym == Symbol("bol_mag")
             return bol_mag
+        elseif sym == Symbol("U_mag")
+            return U_mag
         elseif sym == Symbol("B_mag")
             return B_mag
         elseif sym == Symbol("V_mag")
             return V_mag
+        elseif sym == Symbol("R_mag")
+            return R_mag
+        elseif sym == Symbol("I_mag")
+            return I_mag
+        elseif sym == Symbol("J_mag")
+            return J_mag
+        elseif sym == Symbol("H_mag")
+            return H_mag
+        elseif sym == Symbol("K_mag")
+            return K_mag
+        elseif sym == Symbol("g_mag")
+            return g_mag
+        elseif sym == Symbol("r_mag")
+            return r_mag
+        elseif sym == Symbol("i_mag")
+            return i_mag
+        elseif sym == Symbol("z_mag")
+            return z_mag
         else
             throw(ArgumentError("Symbol $sym not found in `LogUnits`."))
         end
@@ -143,7 +222,18 @@ end
 end
 
 @testitem "log_dimensions: zero-point" setup=[DQ] begin
-    @test isapprox(1ul.V_mag, 3640u.Jy; atol=0.001ul.V_mag)
+    @test isapprox(1ul.U_mag, 1810*u.Jy, atol=0.001*ul.U_mag)
+    @test isapprox(1ul.B_mag, 4260*u.Jy, atol=0.001*ul.B_mag)
+    @test isapprox(1ul.V_mag, 3640*u.Jy; atol=0.001*ul.V_mag)
+    @test isapprox(1ul.R_mag, 3080*u.Jy, atol=0.001*ul.R_mag)
+    @test isapprox(1ul.I_mag, 2550*u.Jy, atol=0.001*ul.I_mag)
+    @test isapprox(1ul.J_mag, 1600*u.Jy, atol=0.001*ul.J_mag)
+    @test isapprox(1ul.H_mag, 1080*u.Jy, atol=0.001*ul.H_mag)
+    @test isapprox(1ul.K_mag,  670*u.Jy, atol=0.001*ul.K_mag)
+    @test isapprox(1ul.g_mag, 3730*u.Jy, atol=0.001*ul.g_mag)
+    @test isapprox(1ul.r_mag, 4490*u.Jy, atol=0.001*ul.r_mag)
+    @test isapprox(1ul.i_mag, 4760*u.Jy, atol=0.001*ul.i_mag)
+    @test isapprox(1ul.z_mag, 4810*u.Jy, atol=0.001*ul.z_mag)
 end
 
 @testitem "log_dimensions: algebra" setup=[DQ] begin
