@@ -266,6 +266,9 @@ end
 
 @add_prefixes Jy (m, M)
 
+## CGS
+@_lazy_register_unit erg 1e-7 * J
+
 # Do not wish to define Gaussian units, as it changes
 # some formulas. Safer to force user to work exclusively in one unit system.
 

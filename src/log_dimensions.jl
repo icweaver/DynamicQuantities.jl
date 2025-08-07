@@ -16,7 +16,7 @@ Base.show(io::IO, unit::MagUnit) = print(io, unit.value, " ", unit.name)
 
 Expand  the logarithmic units in a quantity with symbolic dimensions to their base SI form.
 """
-uexpand(m::MagUnit) = (m.zero_point / exp10(m.value / 2.5))
+uexpand(m::MagUnit) = (m.zero_point / exp10(0.4 * m.value))
 
 function uconvert(mout::MagUnit, x)
     @assert mout.value == 1.0 "You tried converting to $(mout), a `MagUnit` with a non-unit value."
