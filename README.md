@@ -457,9 +457,13 @@ the type you wish to use as the second argument to `Quantity`:
 ```julia
 julia> using DynamicQuantities
 
-julia> q8 = [Quantity{Float64,FRInt8}(randn(), length=rand(-2:2)) for i in 1:1000];
+julia> R8 = Dimensions{FRInt8};
 
-julia> q32 = [Quantity{Float64,FRInt32}(randn(), length=rand(-2:2)) for i in 1:1000];
+julia> R32 = Dimensions{FRInt32};
+
+julia> q8 = [Quantity{Float64,R8}(randn(), length=rand(-2:2)) for i in 1:1000];
+
+julia> q32 = [Quantity{Float64,R32}(randn(), length=rand(-2:2)) for i in 1:1000];
 
 julia> f(x) = @. x ^ 2 * 0.5;
 
