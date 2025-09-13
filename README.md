@@ -328,7 +328,7 @@ you can use a `QuantityArray`:
 
 ```julia-repl
 julia> ar = rand(3)u"m/s"
-3-element QuantityArray(::Vector{Float64}, ::Quantity{Float64, Dimensions{FixedRational{Int32, 25200}}}):
+3-element QuantityArray(::Vector{Float64}, ::Quantity{Float64, Dimensions{FRInt32}}):
  0.2729202669351497 m s⁻¹
  0.992546340360901 m s⁻¹
  0.16863543422972482 m s⁻¹
