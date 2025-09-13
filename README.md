@@ -326,8 +326,8 @@ julia> ustrip(ua"degC", 295.15u"K")
 For working with an array of quantities that have the same dimensions,
 you can use a `QuantityArray`:
 
-```julia
-julia> ar = QuantityArray(rand(3), u"m/s")
+```julia-repl
+julia> ar = rand(3)u"m/s"
 3-element QuantityArray(::Vector{Float64}, ::Quantity{Float64, Dimensions{FixedRational{Int32, 25200}}}):
  0.2729202669351497 m s⁻¹
  0.992546340360901 m s⁻¹
@@ -352,7 +352,7 @@ This also has a custom broadcasting interface which
 allows the compiler to avoid redundant dimension calculations,
 relative to if you had simply used an array of quantities:
 
-```julia
+```julia-repl
 julia> f(v) = v^2 * 1.5;
 
 julia> @btime $f.(xa) setup=(xa = randn(100000) .* u"km/s");
@@ -363,6 +363,16 @@ julia> @btime $f.(qa) setup=(xa = randn(100000) .* u"km/s"; qa = QuantityArray(x
 ```
 
 So we can see the `QuantityArray` version saves on both time and memory.
+
+By default, DynamicQuantities will create a `QuantityArray` from an `AbstractArray`, similarly to how a `Quantity` is created from a scalar in the [Usage](@ref) examples:
+
+```julia-repl
+julia> x = (1:3)us"km/h"
+3-element QuantityArray(::StepRangeLen{Float64, ...}, ::Quantity{Float64, SymbolicDimensions{...}}):
+ 1.0 km h⁻¹
+ 2.0 km h⁻¹
+ 3.0 km h⁻¹
+```
 
 ### Unitful
 
