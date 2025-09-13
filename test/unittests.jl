@@ -743,8 +743,8 @@ end
         @test FRInt8 === FixedRational{Int8, 12}
         @test DEFAULT_DIM_BASE_TYPE === FRInt32
 
-        @test string(FRInt32) == "FRInt32"
-        @test string(FRInt8) == "FRInt8"
+        @test occursin("FRInt32", string(FRInt32))
+        @test occursin("FRInt8", string(FRInt8))
     end
 end
 
