@@ -1691,7 +1691,7 @@ end
             io = IOBuffer()
             Base.showarg(io, z, true)
             msg = String(take!(io))
-            Q == Quantity && @test occursin(r"QuantityArray\(::Vector{Float64}, ::(DynamicQuantities\.)?Quantity{Float64, (DynamicQuantities\.)?SymbolicDimensions{(DynamicQuantities\.)?FixedRational{Int32, 25200}}}\)", msg)
+            Q == Quantity && @test occursin(r"QuantityArray\(::Vector{Float64}, ::(DynamicQuantities\.)?Quantity{Float64, (DynamicQuantities\.)?SymbolicDimensions{(DynamicQuantities\.)?FRInt32}}\)", msg)
 
             io = IOBuffer()
             Base.show(io, MIME"text/plain"(), typeof(z))
