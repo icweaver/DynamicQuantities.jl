@@ -737,6 +737,15 @@ end
     x = 10u"m"
     user_quantity = Quantity(10.0, Dimensions{FixedRational{Int32,25200}}(1, 0, 0, 0, 0, 0, 0))
     @test x == user_quantity
+
+    @testset "FRInt32 and FRInt8 type aliases" begin
+        @test FRInt32 === FixedRational{Int32, 25200}
+        @test FRInt8 === FixedRational{Int8, 12}
+        @test DEFAULT_DIM_BASE_TYPE === FRInt32
+
+        @test occursin("FRInt32", string(FRInt32))
+        @test occursin("FRInt8", string(FRInt8))
+    end
 end
 
 @testset "Quantity promotion" begin
@@ -1682,7 +1691,7 @@ end
             io = IOBuffer()
             Base.showarg(io, z, true)
             msg = String(take!(io))
-            Q == Quantity && @test occursin(r"QuantityArray\(::Vector{Float64}, ::(DynamicQuantities\.)?Quantity{Float64, (DynamicQuantities\.)?SymbolicDimensions{(DynamicQuantities\.)?FixedRational{Int32, 25200}}}\)", msg)
+            Q == Quantity && @test occursin(r"QuantityArray\(::Vector{Float64}, ::(DynamicQuantities\.)?Quantity{Float64, (DynamicQuantities\.)?SymbolicDimensions{(DynamicQuantities\.)?FRInt32}}\)", msg)
 
             io = IOBuffer()
             Base.show(io, MIME"text/plain"(), typeof(z))
