@@ -173,7 +173,7 @@ Convert a quantity `q` with base SI units to the symbolic units of `qout`, for `
 Mathematically, the result has value `q / uexpand(qout)` and units `dimension(qout)`.
 
 You can also use `|>` as a shorthand for `uconvert`:
-```julia
+```jldoctest
 julia> q = 1u"m/s^2" |> us"km/h^2"
 12960.0 km h⁻²
 ```
@@ -260,7 +260,7 @@ end
     ustripexpand(q::AbstractQuantity)
     ustripexpand(q::QuantityArray)
 
-Return the value of `q` in SI base units. This is equivalent with `ustrip(uexpand(q))`.
+Return the value of `q` in SI base units. This is equivalent to `ustrip(uexpand(q))`.
 """
 ustripexpand(q::UnionAbstractQuantity) = ustrip(uexpand(q))
 ustripexpand(q::QuantityArray) = ustrip(uexpand(q))

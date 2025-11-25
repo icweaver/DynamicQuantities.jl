@@ -46,7 +46,7 @@ For example, `promote_quantity_on_value(Quantity, Float64)` would return `Quanti
 `promote_quantity_on_value(RealQuantity, String)` would return `GenericQuantity`.
 The user should overload this function to define a custom type hierarchy.
 
-Also see `promote_quantity_on_quantity`.
+Also see [`promote_quantity_on_quantity`](@ref).
 """
 @unstable @inline promote_quantity_on_value(::Type{<:Union{GenericQuantity,Quantity,RealQuantity}}, ::Type{<:Any}) = GenericQuantity
 @unstable @inline promote_quantity_on_value(::Type{<:Union{Quantity,RealQuantity}}, ::Type{<:Number}) = Quantity
@@ -63,7 +63,7 @@ as it can store both `Quantity` and `GenericQuantity` values.
 Similarly, `promote_quantity_on_quantity(RealQuantity, RealQuantity)` would return `RealQuantity`,
 as that is the most specific type.
 
-Also see `promote_quantity_on_value`.
+Also see [`promote_quantity_on_value`](@ref).
 """
 @unstable @inline promote_quantity_on_quantity(::Type{<:Union{GenericQuantity,Quantity,RealQuantity}}, ::Type{<:Union{GenericQuantity,Quantity,RealQuantity}}) = GenericQuantity
 @unstable @inline promote_quantity_on_quantity(::Type{<:Union{Quantity,RealQuantity}}, ::Type{<:Union{Quantity,RealQuantity}}) = Quantity
@@ -208,7 +208,7 @@ Base.keys(q::UnionAbstractQuantity) = keys(ustrip(q))
 end
 
 # Numeric checks
-for op in (:(<=), :(<), :(>=), :(>), :isless), (type, true_base_type, _) in ABSTRACT_QUANTITY_TYPES
+for op in (:(<=), :(<), :isless), (type, true_base_type, _) in ABSTRACT_QUANTITY_TYPES
     # Avoid creating overly generic operations on these:
     base_type = true_base_type <: Number ? true_base_type : Number
     @eval begin
@@ -243,7 +243,7 @@ for op in (:isequal, :(==)), (type, true_base_type, _) in ABSTRACT_QUANTITY_TYPE
         end
     end
 end
-for op in (:(<=), :(<), :(>=), :(>), :isless, :isgreater, :isequal, :(==)),
+for op in (:(<=), :(<), :isless, :isequal, :(==)),
     (t1, _, _) in ABSTRACT_QUANTITY_TYPES,
     (t2, _, _) in ABSTRACT_QUANTITY_TYPES
 
@@ -395,14 +395,14 @@ Convert quantity `q` to the units specified by `unit`, then strip the units.
 This is equivalent to `ustrip(q / unit)`, but also verifies the dimensions are compatible.
 
 # Examples
-```julia
+```jldoctest
 julia> ustrip(u"km", 1000u"m")
 1.0
 
 julia> ustrip(u"s", 1u"minute")
 60.0
 
-julia> ustrip(u"km", [1000u"m", 2000u"m"])
+julia> ustrip.(u"km", [1000u"m", 2000u"m"])
 2-element Vector{Float64}:
  1.0
  2.0
