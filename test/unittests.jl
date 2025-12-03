@@ -2189,6 +2189,47 @@ end
     @test ustrip(ua"degC", 55us"K") ≈ -218.15
 end
 
+@testset "Tests of LogDimensions" begin
+    # AB_mag
+    @test isapprox(3631u"Jy", 0ul"AB_mag", atol=0.001ul"AB_mag")
+    @test isapprox(36.31u"Jy", 5ul"AB_mag", atol=0.001ul"AB_mag")
+    @test isapprox(363.1u"mJy", 10ul"AB_mag", atol=0.001ul"AB_mag")
+    @test isapprox(3.631u"mJy", 15ul"AB_mag", atol=0.001ul"AB_mag")
+    @test isapprox(5ul"AB_mag" + 5ul"AB_mag",  4.247425010840047ul"AB_mag", atol=0.001ul"AB_mag")
+    @test isapprox(5ul"AB_mag" / 100, 10ul"AB_mag", atol=0.001ul"AB_mag")
+    # TODO: patch src/utils.jl for this? Doing uexpand manually for now
+    @test_broken isapprox(5ul"AB_mag" + 10u"Jy", 46.31u"Jy", atol=0.001ul"AB_mag")
+    @test isapprox(5ul"AB_mag" + 10u"Jy", 46.31u"Jy", atol=uexpand(0.001ul"AB_mag"))
+
+    # bol mags
+    @test isapprox(3.0128e28u"W", 1ul"bol_Mag"; atol=0.001ul"bol_Mag")
+    @test isapprox(2.518_021_002e-8u"W/m^2", 1ul"bol_mag", atol=0.001ul"bol_mag")
+
+    # zero-point
+    @test isapprox(1ul"U_mag", 1810u"Jy", atol=0.001ul"U_mag")
+    @test isapprox(1ul"B_mag", 4260u"Jy", atol=0.001ul"B_mag")
+    @test isapprox(1ul"V_mag", 3640u"Jy"; atol=0.001ul"V_mag")
+    @test isapprox(1ul"R_mag", 3080u"Jy", atol=0.001ul"R_mag")
+    @test isapprox(1ul"I_mag", 2550u"Jy", atol=0.001ul"I_mag")
+    @test isapprox(1ul"J_mag", 1600u"Jy", atol=0.001ul"J_mag")
+    @test isapprox(1ul"H_mag", 1080u"Jy", atol=0.001ul"H_mag")
+    @test isapprox(1ul"K_mag",  670u"Jy", atol=0.001ul"K_mag")
+    @test isapprox(1ul"g_mag", 3730u"Jy", atol=0.001ul"g_mag")
+    @test isapprox(1ul"r_mag", 4490u"Jy", atol=0.001ul"r_mag")
+    @test isapprox(1ul"i_mag", 4760u"Jy", atol=0.001ul"i_mag")
+    @test isapprox(1ul"z_mag", 4810u"Jy", atol=0.001ul"z_mag")
+
+    # algebra
+    @test iszero(1ul"B_mag" - 1ul"V_mag")
+    @test isapprox(5*ul"B_mag" - 1ul"V_mag", 4)
+    @test isapprox(1ul"B_mag" - 5*ul"V_mag", -4)
+    @test isapprox(1ul"B_mag" - 0.5*ul"V_mag", 0.5)
+    @test_throws MethodError 1ul"B_mag" + 2ul"V_mag"
+    @test_throws MethodError 1ul"B_mag" * 2ul"V_mag"
+    @test_throws MethodError 1ul"B_mag" / 2ul"V_mag"
+    @test_throws MethodError 1ul"B_mag" // 2ul"V_mag"
+end
+
 @testset "Test div" begin
     for Q in (RealQuantity, Quantity, GenericQuantity)
         x = Q{Int}(10, length=1)

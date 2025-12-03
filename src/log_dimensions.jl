@@ -1,5 +1,3 @@
-using TestItems: @testitem, @testmodule, @testsnippet
-
 abstract type LogUnit{T} end
 
 struct MagUnit{T<:Real} <: LogUnit{T}
@@ -194,55 +192,4 @@ end
 macro ul_str(s)
     ex = LogUnits.map_to_scope(Meta.parse(s))
     return esc(ex)
-end
-
-# Tests
-@testsnippet DQ begin
-    using DynamicQuantities
-
-    const u = DynamicQuantities.Units
-    const ul = DynamicQuantities.LogUnits
-end
-
-@testitem "log_dimensions: AB_mag" setup=[DQ] begin
-    @test isapprox(3631u.Jy, 0*ul.AB_mag, atol=0.001*ul.AB_mag)
-    @test isapprox(36.31*u.Jy, 5*ul.AB_mag, atol=0.001*ul.AB_mag)
-    @test isapprox(363.1*u.mJy, 10*ul.AB_mag, atol=0.001*ul.AB_mag)
-    @test isapprox(3.631*u.mJy, 15*ul.AB_mag, atol=0.001*ul.AB_mag)
-    @test isapprox(5*ul.AB_mag + 5*ul.AB_mag,  4.247425010840047*ul.AB_mag, atol=0.001*ul.AB_mag)
-    @test isapprox(5*ul.AB_mag / 100, 10*ul.AB_mag, atol=0.001*ul.AB_mag)
-    # TODO: patch src/utils.jl for this? Doing uexpand manually for now
-    @test_broken isapprox(5*ul.AB_mag + 10*u.Jy, 46.31*u.Jy, atol=0.001*ul.AB_mag)
-    @test isapprox(5*ul.AB_mag + 10*u.Jy, 46.31*u.Jy, atol=uexpand(0.001*ul.AB_mag))
-end
-
-@testitem "log_dimensions: bol mags" setup=[DQ] begin
-    @test isapprox(3.0128e28*u.W, 1ul.bol_Mag; atol=0.001*ul.bol_Mag)
-    @test isapprox(2.518_021_002e-8*u.W*u.m^-2, 1ul.bol_mag, atol=0.001*ul.bol_mag)
-end
-
-@testitem "log_dimensions: zero-point" setup=[DQ] begin
-    @test isapprox(1ul.U_mag, 1810*u.Jy, atol=0.001*ul.U_mag)
-    @test isapprox(1ul.B_mag, 4260*u.Jy, atol=0.001*ul.B_mag)
-    @test isapprox(1ul.V_mag, 3640*u.Jy; atol=0.001*ul.V_mag)
-    @test isapprox(1ul.R_mag, 3080*u.Jy, atol=0.001*ul.R_mag)
-    @test isapprox(1ul.I_mag, 2550*u.Jy, atol=0.001*ul.I_mag)
-    @test isapprox(1ul.J_mag, 1600*u.Jy, atol=0.001*ul.J_mag)
-    @test isapprox(1ul.H_mag, 1080*u.Jy, atol=0.001*ul.H_mag)
-    @test isapprox(1ul.K_mag,  670*u.Jy, atol=0.001*ul.K_mag)
-    @test isapprox(1ul.g_mag, 3730*u.Jy, atol=0.001*ul.g_mag)
-    @test isapprox(1ul.r_mag, 4490*u.Jy, atol=0.001*ul.r_mag)
-    @test isapprox(1ul.i_mag, 4760*u.Jy, atol=0.001*ul.i_mag)
-    @test isapprox(1ul.z_mag, 4810*u.Jy, atol=0.001*ul.z_mag)
-end
-
-@testitem "log_dimensions: algebra" setup=[DQ] begin
-    @test iszero(1ul.B_mag - 1ul.V_mag)
-    @test isapprox(5*ul.B_mag - 1ul.V_mag, 4)
-    @test isapprox(1ul.B_mag - 5*ul.V_mag, -4)
-    @test isapprox(1ul.B_mag - 0.5*ul.V_mag, 0.5)
-    @test_throws MethodError 1ul.B_mag + 2ul.V_mag
-    @test_throws MethodError 1ul.B_mag * 2ul.V_mag
-    @test_throws MethodError 1ul.B_mag / 2ul.V_mag
-    @test_throws MethodError 1ul.B_mag // 2ul.V_mag
 end
