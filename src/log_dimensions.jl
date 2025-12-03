@@ -1,5 +1,27 @@
+"""
+    LogUnit{T}
+
+LogUnit only supports scalar multiplication in the form `number * unit` (e.g., `22ua"degC"`),
+which immediately converts it to a regular `Quantity{Float64,Dimensions{R}}`. Other operations
+like `unit * number`, division, addition, or subtraction with AffineUnit are not supported.
+
+This is not part of the AbstractDimensions hierarchy.
+
+!!! warning "Non-associative multiplication"
+    Multiplication with AffineUnit is non-associative due to the auto-conversion property.
+    For example, `(2 * 3) * ua"degC"` ≠ `2 * (3 * ua"degC")` because when a number multiplies an AffineUnit,
+    it immediately converts to a regular Quantity with the affine transformation applied.
+
+!!! warning
+    This is an experimental feature and may change in the future.
+"""
 abstract type LogUnit{T} end
 
+"""
+    MagUnit{R} <: LogUnit{R}
+
+A simple struct for representing magnitudes. See [LogUnit](@ref) for other supported logarithmic units.
+"""
 struct MagUnit{T<:Real} <: LogUnit{T}
     value::T
     zero_point::Quantity{Float64, Dimensions{DEFAULT_DIM_BASE_TYPE}}
